@@ -71,20 +71,22 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
 
   deploy:
-    name: Deploy Application
     runs-on: ubuntu-latest
-    needs: docker
+
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Pull and restart Docker container
+      - name: Deploy to Server
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           docker pull ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
           docker stop akaunting-app || true
           docker rm akaunting-app || true
