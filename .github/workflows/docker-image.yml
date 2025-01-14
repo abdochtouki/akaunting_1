@@ -87,10 +87,9 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << EOF
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "bash -s" << 'ENDSSH'
           docker pull ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
           docker stop akaunting-app || true
           docker rm akaunting-app || true
           docker run -d --name akaunting-app -p 8082:80 ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
-          EOF
-
+          ENDSSH
