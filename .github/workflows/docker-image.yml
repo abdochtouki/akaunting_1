@@ -71,16 +71,24 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
 
   deploy:
-    name: Deploy to Server
     runs-on: ubuntu-latest
-    needs: docker
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up SSH
+      - name: Debug environment
         run: |
+          echo "Checking environment..."
+          whoami
+          pwd
+          ls -la
+
+      - name: Reset and Set up SSH
+        run: |
+          rm -rf ~/.ssh
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
