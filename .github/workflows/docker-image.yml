@@ -71,6 +71,7 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
 
   deploy:
+  
     runs-on: ubuntu-latest
 
     steps:
