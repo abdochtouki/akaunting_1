@@ -72,24 +72,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
   
-      - name: Install SSH client
-        run: sudo apt-get update && sudo apt-get install -y openssh-client
-  
-      - name: Add SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+      - name: Start ssh-agent
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
   
       - name: Deploy to Server
         env:
+          DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USERNAME }}
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
-          docker pull ${{ secrets.DOCKER_USERNAME }}/akaunting:latest &&
+          docker pull $DOCKER_IMAGE &&
           docker stop akaunting-app || true &&
           docker rm akaunting-app || true &&
-          docker run -d --name akaunting-app -p 8082:80 ${{ secrets.DOCKER_USERNAME }}/akaunting:latest
+          docker run -d --name akaunting-app -p 8082:80 $DOCKER_IMAGE
           "
+  
 
