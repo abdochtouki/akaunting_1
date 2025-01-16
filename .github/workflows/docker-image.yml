@@ -72,16 +72,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
   
-      - name: Set up SSH Key
+      - name: Configure SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
   
       - name: Add Server to Known Hosts
-        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
   
       - name: Deploy to Server
         env:
@@ -95,6 +94,7 @@ jobs:
           docker rm akaunting-app || true &&
           docker run -d --name akaunting-app -p 8082:80 $DOCKER_IMAGE
           "
+
 
   
     
